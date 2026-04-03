@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Native Demand & Promise Intelligence — Shipsy Case Study</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F5F0E8;
+      --surface:   #FFFFFF;
+      --surface2:  #FAF7F3;
+      --border:    #E5DDD4;
+      --border2:   #EDE8E0;
+      --text-1:    #1A1611;
+      --text-2:    #5C564E;
+      --text-3:    #9C9289;
+      --orange:    #CC6B3D;
+      --orange-bg: #FDF4EE;
+      --orange-br: #F0C8A8;
+      --purple:    #7C5CBF;
+      --purple-bg: #F3EFFD;
+      --purple-br: #C9B8EF;
+      --green:     #2A7A50;
+      --green-bg:  #EDFAF3;
+      --green-br:  #A8DFC3;
+      --red:       #C0392B;
+      --red-bg:    #FEF0EE;
+      --red-br:    #F0B8B0;
+      --yellow:    #A0620A;
+      --yellow-bg: #FFF9EC;
+      --yellow-br: #F0D898;
+      --shadow:    0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-badge {
+      background: var(--orange-bg);
+      color: var(--orange);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      border: 1px solid var(--orange-br);
+    }
+    header h1 { font-size: 16px; font-weight: 700; color: var(--text-1); }
+    header h1 span { color: var(--orange); }
+    .header-right { font-size: 12px; color: var(--text-3); }
+
+    /* ── NAV TABS ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      gap: 0;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-3);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 13px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .tab-btn:hover { color: var(--text-2); }
+    .tab-btn.active { color: var(--orange); border-bottom-color: var(--orange); font-weight: 600; }
+
+    /* ── LAYOUT ── */
+    .tab-content { display: none; padding: 28px 32px; max-width: 1200px; }
+    .tab-content.active { display: block; }
+
+    .section-intro {
+      font-size: 14px;
+      color: var(--text-2);
+      margin-bottom: 24px;
+      line-height: 1.7;
+      max-width: 740px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+    }
+
+    /* ── TAGS ── */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tag-orange { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-br); }
+    .tag-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-br); }
+    .tag-green  { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-br); }
+    .tag-red    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-br); }
+    .tag-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-br); }
+
+    /* ══════════════════════════════════════════════
+       TAB 1 — ARCHITECTURE
+    ══════════════════════════════════════════════ */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .layer-stack { display: flex; flex-direction: column; gap: 6px; }
+
+    .layer {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .layer:hover { border-color: var(--orange-br); background: var(--orange-bg); }
+    .layer.active { border-color: var(--orange); background: var(--orange-bg); }
+
+    .layer-header { display: flex; align-items: center; gap: 10px; }
+    .layer-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+    .layer-num {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800;
+      flex-shrink: 0; letter-spacing: -0.3px;
+      background: var(--surface); border: 1.5px solid var(--border);
+      color: var(--text-3);
+      transition: all 0.15s;
+    }
+    .layer.active .layer-num { background: var(--orange-bg); border-color: var(--orange); color: var(--orange); }
+    .layer-name { font-size: 13px; font-weight: 600; color: var(--text-1); flex: 1; }
+
+    .signal-arrow {
+      display: flex; align-items: center; justify-content: center;
+      height: 14px; color: var(--border); font-size: 14px;
+    }
+    .signal-arrow.active-flow { color: var(--orange); }
+
+    /* Detail panel */
+    .detail-header { margin-bottom: 6px; }
+    .detail-header h3 { font-size: 17px; font-weight: 700; color: var(--text-1); margin-bottom: 4px; }
+    .detail-header p { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+
+    .detail-section { margin-top: 18px; }
+    .detail-section-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--orange); margin-bottom: 10px;
+    }
+
+    .signal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .signal-item {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 9px 11px;
+      font-size: 12px;
+    }
+    .signal-item .s-label { color: var(--text-3); margin-bottom: 1px; font-size: 11px; }
+    .signal-item .s-value { color: var(--text-1); font-weight: 500; }
+
+    .gap-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .gap-box { border-radius: 8px; padding: 12px; font-size: 12px; line-height: 1.55; }
+    .gap-today { background: var(--red-bg); border: 1px solid var(--red-br); }
+    .gap-today .gap-lbl { color: var(--red); font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 5px; }
+    .gap-today .gap-txt { color: var(--text-2); }
+    .gap-ai { background: var(--green-bg); border: 1px solid var(--green-br); }
+    .gap-ai .gap-lbl { color: var(--green); font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 5px; }
+    .gap-ai .gap-txt { color: var(--text-2); }
+
+    .handoff-box {
+      background: var(--yellow-bg);
+      border: 1px solid var(--yellow-br);
+      border-radius: 8px;
+      padding: 11px;
+      font-size: 12px;
+      color: var(--text-2);
+      line-height: 1.55;
+      margin-top: 10px;
+    }
+    .handoff-box strong { color: var(--yellow); }
+
+    .principles-note {
+      margin-top: 14px;
+      padding: 11px 14px;
+      background: var(--purple-bg);
+      border: 1px solid var(--purple-br);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+    .principles-note strong { color: var(--purple); }
+
+    /* ══════════════════════════════════════════════
+       TAB 2 — PROMISE ENGINE
+    ══════════════════════════════════════════════ */
+    .promise-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .control-group { margin-bottom: 20px; }
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      margin-bottom: 7px;
+    }
+    .control-value { font-size: 13px; font-weight: 700; color: var(--orange); }
+
+    input[type="range"] {
+      width: 100%; height: 4px; border-radius: 2px;
+      background: var(--border); outline: none; cursor: pointer;
+      -webkit-appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px;
+      border-radius: 50%; background: var(--orange); cursor: pointer;
+      border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    select {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text-1); padding: 8px 12px; font-size: 13px;
+      font-family: inherit; outline: none; cursor: pointer;
+    }
+    select:focus { border-color: var(--orange); }
+
+    /* ETA display */
+    .eta-hero {
+      text-align: center; padding: 24px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 12px; margin-bottom: 16px;
+    }
+    .eta-lbl { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    .eta-num { font-size: 52px; font-weight: 800; color: var(--orange); line-height: 1; }
+    .eta-unit { font-size: 16px; color: var(--text-3); margin-top: 2px; }
+    .customer-pill {
+      margin-top: 14px;
+      display: inline-block;
+      padding: 8px 18px; border-radius: 20px;
+      font-size: 14px; font-weight: 600;
+    }
+    .pill-point  { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-br); }
+    .pill-range  { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-br); }
+    .pill-wide   { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-br); }
+
+    /* Formula rows */
+    .formula-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 12px; border-radius: 7px; margin-bottom: 5px;
+      background: var(--surface2); border: 1px solid var(--border2); font-size: 13px;
+    }
+    .f-name { color: var(--text-2); font-weight: 500; }
+    .f-formula { font-family: 'SF Mono', 'Fira Mono', monospace; font-size: 10px; color: var(--text-3); }
+    .f-value { font-weight: 700; color: var(--text-1); }
+    .formula-total {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 12px; border-radius: 8px;
+      background: var(--orange-bg); border: 1.5px solid var(--orange-br);
+      font-weight: 700; margin-top: 6px;
+    }
+    .ft-lbl { color: var(--orange); font-size: 14px; }
+    .ft-val { color: var(--orange); font-size: 18px; }
+
+    /* Confidence */
+    .conf-header {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; margin-bottom: 8px;
+    }
+    .conf-lbl { color: var(--text-2); }
+    .conf-pct { font-weight: 700; }
+    .conf-track { height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .conf-fill { height: 100%; border-radius: 4px; transition: width 0.35s, background 0.35s; }
+
+    .ai-note {
+      margin-top: 12px; padding: 10px 13px;
+      background: var(--purple-bg); border: 1px solid var(--purple-br);
+      border-radius: 8px; font-size: 12px; color: var(--text-2); line-height: 1.55;
+    }
+    .ai-note strong { color: var(--purple); }
+
+    .forward-note {
+      margin-top: 12px; padding: 10px 13px;
+      background: var(--yellow-bg); border: 1px solid var(--yellow-br);
+      border-radius: 8px; font-size: 12px; color: var(--text-2); line-height: 1.55;
+    }
+    .forward-note strong { color: var(--yellow); }
+
+    /* ══════════════════════════════════════════════
+       TAB 3 — SUBSTITUTION
+    ══════════════════════════════════════════════ */
+    .sub-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .item-card { border-radius: 12px; overflow: hidden; }
+
+    .item-hero {
+      background: var(--orange-bg);
+      border: 1px solid var(--orange-br);
+      border-radius: 12px 12px 0 0;
+      padding: 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .item-emoji { font-size: 36px; }
+    .item-name { font-size: 14px; font-weight: 700; color: var(--text-1); }
+    .item-sub  { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+    .item-price { font-size: 15px; font-weight: 700; color: var(--orange); margin-top: 3px; }
+
+    .stat-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      overflow: hidden;
+    }
+    .stat-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px; border-bottom: 1px solid var(--border2);
+      font-size: 13px;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-lbl { color: var(--text-3); }
+    .stat-val { font-weight: 600; color: var(--text-1); }
+    .stat-warn { color: var(--yellow) !important; }
+    .stat-crit { color: var(--red) !important; }
+    .stat-ok   { color: var(--green) !important; }
+
+    .oos-box {
+      margin-top: 12px; padding: 14px;
+      background: var(--red-bg); border: 1px solid var(--red-br);
+      border-radius: 10px; text-align: center;
+    }
+    .oos-lbl   { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-bottom: 4px; }
+    .oos-timer { font-size: 38px; font-weight: 800; color: var(--red); line-height: 1; }
+    .oos-unit  { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+    .today-box {
+      margin-top: 12px; padding: 13px;
+      background: var(--red-bg); border: 1px solid var(--red-br);
+      border-radius: 10px; font-size: 12px; color: var(--text-2); line-height: 1.6;
+    }
+    .today-box .t-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--red); margin-bottom: 6px; }
+
+    /* Stage tabs */
+    .stage-nav {
+      display: flex; gap: 0;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin-bottom: 18px;
+    }
+    .stage-btn {
+      flex: 1; padding: 11px 8px; background: none; border: none;
+      color: var(--text-3); font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit; text-align: center;
+      border-right: 1px solid var(--border); transition: all 0.15s;
+      position: relative;
+    }
+    .stage-btn:last-child { border-right: none; }
+    .stage-btn:hover { background: var(--orange-bg); color: var(--text-2); }
+    .stage-btn.active { background: var(--orange-bg); color: var(--orange); }
+    .stage-btn.done { color: var(--green); }
+    .stage-btn.done::after {
+      content: '✓'; position: absolute; top: 4px; right: 6px;
+      font-size: 9px; color: var(--green);
+    }
+
+    .stage-panel { display: none; }
+    .stage-panel.active { display: block; }
+
+    /* Action blocks */
+    .action-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 11px; padding: 18px; margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+    .action-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .action-title { font-size: 14px; font-weight: 600; color: var(--text-1); }
+    .action-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; }
+
+    /* Sub options */
+    .sub-options { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+    .sub-opt {
+      background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 12px 14px;
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .sub-opt:hover { border-color: var(--orange-br); background: var(--orange-bg); }
+    .sub-opt.chosen { border-color: var(--green); background: var(--green-bg); }
+    .sub-opt.rejected-opt { border-color: var(--red-br); background: var(--red-bg); opacity: 0.6; }
+    .sub-opt.dimmed { opacity: 0.35; pointer-events: none; }
+
+    .sub-rank {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--border2); display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--text-2); flex-shrink: 0;
+    }
+    .sub-info { flex: 1; }
+    .sub-name { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+    .sub-meta { font-size: 11px; color: var(--text-3); }
+    .sub-rate { font-size: 12px; font-weight: 700; }
+    .rate-hi { color: var(--green); }
+    .rate-mid { color: var(--yellow); }
+
+    .action-btns { display: flex; gap: 8px; margin-top: 14px; }
+    .btn-yes {
+      flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-family: inherit;
+      font-size: 13px; font-weight: 600; background: var(--green-bg);
+      border: 1px solid var(--green-br); color: var(--green); transition: all 0.15s;
+    }
+    .btn-yes:hover { background: #d0f5e4; }
+    .btn-no {
+      flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-family: inherit;
+      font-size: 13px; font-weight: 600; background: var(--red-bg);
+      border: 1px solid var(--red-br); color: var(--red); transition: all 0.15s;
+    }
+    .btn-no:hover { background: #fce0dc; }
+
+    .feedback-box { margin-top: 12px; }
+    .feedback-box.hidden { display: none; }
+
+    /* Learning panel */
+    .learn-box {
+      margin-top: 12px; padding: 14px;
+      background: var(--green-bg); border: 1px solid var(--green-br);
+      border-radius: 10px;
+    }
+    .learn-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--green); margin-bottom: 10px;
+    }
+    .learn-item {
+      display: flex; align-items: flex-start; gap: 7px;
+      font-size: 12px; color: var(--text-2); margin-bottom: 6px; line-height: 1.55;
+    }
+    .learn-item::before { content: '→'; color: var(--green); flex-shrink: 0; margin-top: 1px; }
+
+    .next-btn {
+      width: 100%; padding: 11px; margin-top: 12px;
+      background: var(--orange-bg); border: 1px solid var(--orange-br);
+      border-radius: 8px; color: var(--orange); font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .next-btn:hover { background: #fae5d4; }
+
+    /* Customer preview card */
+    .cx-preview {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px; margin-bottom: 12px;
+    }
+    .cx-preview-lbl {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-3); margin-bottom: 10px;
+    }
+    .cx-item-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+    }
+
+    /* Escalation context */
+    .escalation-box {
+      background: var(--yellow-bg); border: 1px solid var(--yellow-br);
+      border-radius: 10px; padding: 14px; margin-bottom: 12px;
+    }
+    .esc-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--yellow); margin-bottom: 10px; }
+    .esc-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text-2); margin-bottom: 5px; line-height: 1.5;
+    }
+
+    .warning-box {
+      background: var(--red-bg); border: 1px solid var(--red-br);
+      border-radius: 8px; padding: 11px 13px;
+      font-size: 12px; color: var(--red); margin-bottom: 12px; line-height: 1.55;
+    }
+
+    /* ══════════════════════════════════════════════
+       TAB 4 — DEMAND SCENARIOS
+    ══════════════════════════════════════════════ */
+    .scenario-toggle {
+      display: flex; gap: 0;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin-bottom: 24px;
+      width: fit-content;
+    }
+    .scenario-btn {
+      padding: 11px 24px; background: none; border: none;
+      color: var(--text-3); font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      border-right: 1px solid var(--border); transition: all 0.15s;
+    }
+    .scenario-btn:last-child { border-right: none; }
+    .scenario-btn:hover { color: var(--text-2); background: var(--orange-bg); }
+    .scenario-btn.active { background: var(--orange-bg); color: var(--orange); }
+
+    .scenario-panel { display: none; }
+    .scenario-panel.active { display: block; }
+
+    /* Timeline */
+    .timeline-wrap { margin-bottom: 20px; }
+    .timeline {
+      display: flex; gap: 0; position: relative; padding: 0 8px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute; top: 23px; left: 48px; right: 48px; height: 2px;
+      background: var(--border); z-index: 0;
+    }
+    .tl-step {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      cursor: pointer; position: relative; z-index: 1;
+    }
+    .tl-dot {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: var(--surface); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; margin-bottom: 8px; transition: all 0.2s;
+    }
+    .tl-step:hover .tl-dot { border-color: var(--orange-br); background: var(--orange-bg); }
+    .tl-step.active .tl-dot { border-color: var(--orange); background: var(--orange-bg); box-shadow: 0 0 0 4px var(--orange-bg); }
+    .tl-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-align: center; line-height: 1.4; }
+    .tl-step.active .tl-label { color: var(--orange); }
+
+    .tl-detail {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px; margin-top: 16px;
+      box-shadow: var(--shadow);
+    }
+    .tl-detail-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .tl-detail-title { font-size: 15px; font-weight: 700; color: var(--text-1); }
+    .tl-detail-body { font-size: 13px; color: var(--text-2); line-height: 1.7; margin-bottom: 14px; }
+    .tl-bullets { display: flex; flex-direction: column; gap: 6px; }
+    .tl-bullet {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 12px; color: var(--text-2); line-height: 1.55;
+    }
+    .tl-bullet-dot { color: var(--orange); flex-shrink: 0; font-weight: 700; }
+
+    /* B2B comparison */
+    .b2b-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .b2b-card { border-radius: 12px; overflow: hidden; }
+    .b2b-header {
+      padding: 14px 16px; display: flex; align-items: center; gap: 10px;
+      border-radius: 12px 12px 0 0;
+    }
+    .b2b-header-orange { background: var(--orange-bg); border: 1px solid var(--orange-br); border-bottom: none; }
+    .b2b-header-purple { background: var(--purple-bg); border: 1px solid var(--purple-br); border-bottom: none; }
+    .b2b-client-name { font-size: 14px; font-weight: 700; color: var(--text-1); }
+    .b2b-client-sub { font-size: 11px; color: var(--text-2); margin-top: 2px; }
+    .b2b-body {
+      background: var(--surface); border: 1px solid var(--border);
+      border-top: none; border-radius: 0 0 12px 12px; overflow: hidden;
+    }
+    .b2b-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 10px 14px; border-bottom: 1px solid var(--border2);
+      font-size: 12px; gap: 12px;
+    }
+    .b2b-row:last-child { border-bottom: none; }
+    .b2b-key { color: var(--text-3); flex-shrink: 0; width: 130px; }
+    .b2b-val { font-weight: 500; color: var(--text-1); text-align: right; }
+    .b2b-insight {
+      margin-top: 14px; padding: 12px 14px;
+      background: var(--purple-bg); border: 1px solid var(--purple-br);
+      border-radius: 10px; font-size: 12px; color: var(--text-2); line-height: 1.6;
+    }
+    .b2b-insight strong { color: var(--purple); }
+
+    /* ══════════════════════════════════════════════
+       TAB 5 — SCALE MODEL
+    ══════════════════════════════════════════════ */
+    .phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+    .phase-card {
+      border-radius: 12px; overflow: hidden;
+      border: 1.5px solid var(--border); background: var(--surface);
+    }
+    .phase-card.ph-1 { border-color: var(--orange-br); }
+    .phase-card.ph-2 { border-color: var(--yellow-br); }
+    .phase-card.ph-3 { border-color: var(--green-br); }
+    .phase-hd {
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+    }
+    .phase-card.ph-1 .phase-hd { background: var(--orange-bg); }
+    .phase-card.ph-2 .phase-hd { background: var(--yellow-bg); }
+    .phase-card.ph-3 .phase-hd { background: var(--green-bg); }
+    .phase-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-bottom: 3px; }
+    .phase-card.ph-1 .phase-num { color: var(--orange); }
+    .phase-card.ph-2 .phase-num { color: var(--yellow); }
+    .phase-card.ph-3 .phase-num { color: var(--green); }
+    .phase-title { font-size: 13px; font-weight: 700; color: var(--text-1); margin-bottom: 2px; }
+    .phase-timeline-lbl { font-size: 11px; color: var(--text-3); }
+    .phase-body { padding: 14px 16px; }
+    .phase-metric {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 7px 0; border-bottom: 1px solid var(--border2); font-size: 12px;
+    }
+    .phase-metric:last-child { border-bottom: none; }
+    .pm-key { color: var(--text-3); }
+    .pm-val { font-weight: 600; color: var(--text-1); }
+
+    .coldstart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .coldstart-steps { display: flex; flex-direction: column; gap: 8px; }
+    .cs-step {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 11px 13px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 9px; font-size: 12px; color: var(--text-2); line-height: 1.55;
+    }
+    .cs-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--orange-bg); border: 1px solid var(--orange-br);
+      color: var(--orange); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════════════
+       TAB 6 — RISKS
+    ══════════════════════════════════════════════ */
+    .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .risk-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);
+    }
+    .risk-header {
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--surface2);
+    }
+    .risk-icon { font-size: 24px; flex-shrink: 0; }
+    .risk-num {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; letter-spacing: -0.3px;
+      background: var(--orange-bg); border: 1.5px solid var(--orange-br);
+      color: var(--orange);
+    }
+    .item-initial {
+      width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; letter-spacing: 0.5px;
+      background: var(--orange-bg); border: 1.5px solid var(--orange-br);
+      color: var(--orange);
+    }
+    .risk-fm { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-bottom: 3px; }
+    .risk-title { font-size: 14px; font-weight: 700; color: var(--text-1); margin-bottom: 4px; }
+    .risk-subtitle { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+    .risk-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .risk-row { display: flex; gap: 8px; font-size: 12px; line-height: 1.55; }
+    .risk-lbl {
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 2px 6px; border-radius: 3px; flex-shrink: 0; height: fit-content; margin-top: 1px;
+    }
+    .rl-trigger      { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-br); }
+    .rl-mitigation   { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-br); }
+    .rl-rec          { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-br); }
+    .risk-row-text   { color: var(--text-2); }
+
+    @media (max-width: 900px) {
+      .arch-grid, .promise-grid, .sub-grid, .b2b-grid, .risk-grid, .coldstart-grid { grid-template-columns: 1fr; }
+      .phase-grid { grid-template-columns: 1fr; }
+      .tab-content { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="header-badge">Shipsy Case Study</div>
+    <h1><span>AI-Native</span> Demand & Promise Intelligence</h1>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <button class="tab-btn active" onclick="showTab('architecture',this)">01 &nbsp; System Architecture</button>
+  <button class="tab-btn" onclick="showTab('promise',this)">02 &nbsp; Promise Engine</button>
+  <button class="tab-btn" onclick="showTab('substitution',this)">03 &nbsp; OOS & Substitution Flow</button>
+  <button class="tab-btn" onclick="showTab('scenarios',this)">04 &nbsp; Demand Scenarios</button>
+  <button class="tab-btn" onclick="showTab('scale',this)">05 &nbsp; Scale Model</button>
+  <button class="tab-btn" onclick="showTab('risks',this)">06 &nbsp; Risks & Failure Modes</button>
+</nav>
+
+<!-- ════════════════════════════════════════
+     TAB 1: ARCHITECTURE
+════════════════════════════════════════ -->
+<div id="tab-architecture" class="tab-content active">
+  <p class="section-intro">
+    Five layers close the loop between consumer experience and operations. Consumer signals are operational inputs. Operational constraints shape consumer experience — before the customer is ever disappointed. Click any layer to explore its decision logic.
+  </p>
+
+  <div class="arch-grid">
+    <!-- Layer stack -->
+    <div>
+      <div class="layer-stack">
+        <div class="layer active" onclick="selectLayer(0)">
+          <div class="layer-header">
+            <div class="layer-num">01</div>
+            <div class="layer-name">Consumer Signal Layer</div>
+          </div>
+        </div>
+        <div class="signal-arrow active-flow" id="arr-0">↓</div>
+
+        <div class="layer" onclick="selectLayer(1)">
+          <div class="layer-header">
+            <div class="layer-num">02</div>
+            <div class="layer-name">Demand Intelligence</div>
+          </div>
+        </div>
+        <div class="signal-arrow" id="arr-1">↓</div>
+
+        <div class="layer" onclick="selectLayer(2)">
+          <div class="layer-header">
+            <div class="layer-num">03</div>
+            <div class="layer-name">Promise Engine</div>
+          </div>
+        </div>
+        <div class="signal-arrow" id="arr-2">↓</div>
+
+        <div class="layer" onclick="selectLayer(3)">
+          <div class="layer-header">
+            <div class="layer-num">04</div>
+            <div class="layer-name">Substitution Intelligence</div>
+          </div>
+        </div>
+        <div class="signal-arrow" id="arr-3">↓</div>
+
+        <div class="layer" onclick="selectLayer(4)">
+          <div class="layer-header">
+            <div class="layer-num">05</div>
+            <div class="layer-name">Communication Layer</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="principles-note" style="margin-top:14px;">
+        <strong>Three design principles:</strong><br>
+        Forward prediction &nbsp;·&nbsp; Closed-loop learning &nbsp;·&nbsp; Proactive consumer shaping
+      </div>
+    </div>
+
+    <!-- Detail panel -->
+    <div class="card" id="layer-detail" style="min-height:400px;"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     TAB 2: PROMISE ENGINE
+════════════════════════════════════════ -->
+<div id="tab-promise" class="tab-content">
+  <p class="section-intro">
+    Today's ETA formula at Noon is already sophisticated: <strong>ETA = HO + LM + FFT + WT + BT</strong>. The AI-native layer adds forward load prediction, dynamic buffer time, and confidence-based promise display. Adjust inputs to see how the system responds.
+  </p>
+
+  <div class="promise-grid">
+
+    <!-- Controls -->
+    <div class="card">
+      <div class="card-title">Order Inputs</div>
+
+      <div class="control-group">
+        <div class="control-label">
+          Picker Load Factor
+          <span class="control-value" id="lf-val">2.0</span>
+        </div>
+        <input type="range" id="picker-lf" min="0.1" max="8" step="0.1" value="2.0" oninput="updatePromise()">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-top:4px;">
+          <span>Low (0.1)</span><span>Peak (8.0)</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">
+          Basket Size (items)
+          <span class="control-value" id="items-val">5</span>
+        </div>
+        <input type="range" id="basket-items" min="1" max="20" step="1" value="5" oninput="updatePromise()">
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">
+          Rider Availability (min)
+          <span class="control-value" id="rider-val">3.0</span>
+        </div>
+        <input type="range" id="rider-avail" min="0.5" max="10" step="0.5" value="3.0" oninput="updatePromise()">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-top:4px;">
+          <span>Ready (0.5)</span><span>No rider (10)</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">Time Slot</div>
+        <select id="time-slot" onchange="updatePromise()">
+          <option value="morning">Morning (7am–11am)</option>
+          <option value="afternoon">Afternoon (11am–4pm)</option>
+          <option value="peak_evening" selected>Peak Evening (5pm–9pm)</option>
+          <option value="night">Night (9pm–12am)</option>
+        </select>
+      </div>
+
+      <div class="forward-note">
+        <strong>AI-native addition:</strong> Forward load prediction models picker_lf at the moment picking begins — not current load. Gap at peak: <span id="load-diff" style="font-weight:700;">+0.6 min</span>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div>
+      <div class="eta-hero">
+        <div class="eta-lbl">Estimated Time of Arrival</div>
+        <div class="eta-num" id="eta-total">--</div>
+        <div class="eta-unit">minutes</div>
+        <div style="margin-top:10px;">
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">What the customer sees</div>
+          <div class="customer-pill pill-point" id="customer-view">--</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-title">Formula Breakdown — ETA = HO + LM + FFT + WT + BT</div>
+        <div class="formula-row">
+          <span class="f-name">Handover Time (HO)</span>
+          <span class="f-formula">median actual @ DS level</span>
+          <span class="f-value" id="val-ho">3.5 min</span>
+        </div>
+        <div class="formula-row">
+          <span class="f-name">Last Mile (LM)</span>
+          <span class="f-formula">Google × LM multiplier</span>
+          <span class="f-value" id="val-lm">-- min</span>
+        </div>
+        <div class="formula-row" style="flex-direction:column;align-items:stretch;gap:6px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span class="f-name">Fulfillment + Wait (FFT+WT)</span>
+            <span class="f-formula">max(FFT, 0.75×rider) + 0.75 if rider wait</span>
+            <span class="f-value" id="val-wtfft">-- min</span>
+          </div>
+          <div style="padding:6px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);">
+              <span>↳ Acceptance time &nbsp;<span style="font-family:monospace;font-size:10px;">0.285 × e^(0.525 × lf)</span></span>
+              <span id="val-accept" style="font-weight:600;color:var(--text-2);">-- min</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);">
+              <span>↳ Pickup time &nbsp;<span style="font-family:monospace;font-size:10px;">0.5 + (items × 0.2)</span></span>
+              <span id="val-pickup" style="font-weight:600;color:var(--text-2);">-- min</span>
+            </div>
+          </div>
+        </div>
+        <div class="formula-row">
+          <span class="f-name">Buffer Time (BT)</span>
+          <span class="f-formula">dynamic at peak / 3 min fixed</span>
+          <span class="f-value" id="val-bt">-- min</span>
+        </div>
+        <div class="formula-total">
+          <span class="ft-lbl">ETA</span>
+          <span class="ft-val" id="val-eta">-- min</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Promise Confidence</div>
+        <div class="conf-header">
+          <span class="conf-lbl">Model confidence in this ETA</span>
+          <span class="conf-pct" id="conf-pct">--%</span>
+        </div>
+        <div class="conf-track"><div class="conf-fill" id="conf-bar" style="width:0%"></div></div>
+        <div class="ai-note" id="conf-rule" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     TAB 3: SUBSTITUTION
+════════════════════════════════════════ -->
+<div id="tab-substitution" class="tab-content">
+  <p class="section-intro">
+    A customer adds India Gate Premium Basmati Rice to their cart at 7:15pm. Stock: 6 units. Velocity: 1 unit/4 min. OOS confidence at picking time: 68% — below the 80% silent fulfilment threshold. Walk through how the AI-native system handles it.
+  </p>
+
+  <div class="sub-grid">
+
+    <!-- Left: item status -->
+    <div>
+      <div class="item-card">
+        <div class="item-hero">
+          <div class="item-initial">IG</div>
+          <div>
+            <div class="item-name">India Gate Premium Basmati</div>
+            <div class="item-sub">1kg &nbsp;·&nbsp; India Gate</div>
+            <div class="item-price">AED 12.50</div>
+          </div>
+        </div>
+        <div class="stat-list">
+          <div class="stat-row"><span class="stat-lbl">Current stock</span><span class="stat-val stat-warn">6 units</span></div>
+          <div class="stat-row"><span class="stat-lbl">Purchase velocity</span><span class="stat-val">1 unit / 4 min</span></div>
+          <div class="stat-row"><span class="stat-lbl">Fulfillment window</span><span class="stat-val">12 min</span></div>
+          <div class="stat-row"><span class="stat-lbl">Stock at picking time</span><span class="stat-val stat-crit">~3 units</span></div>
+          <div class="stat-row"><span class="stat-lbl">OOS confidence</span><span class="stat-val stat-crit">68%</span></div>
+          <div class="stat-row"><span class="stat-lbl">Silent threshold</span><span class="stat-val">80% required</span></div>
+          <div class="stat-row"><span class="stat-lbl">System decision</span><span class="tag tag-yellow">Activate substitution</span></div>
+        </div>
+      </div>
+
+      <div class="oos-box">
+        <div class="oos-lbl">Predicted OOS in</div>
+        <div class="oos-timer" id="oos-timer">22</div>
+        <div class="oos-unit">minutes</div>
+      </div>
+
+      <div class="today-box">
+        <div class="t-title">Today's system</div>
+        Item passes cart soft check — 6 units in stock. Customer checks out. Picker finds 1 unit at picking stage, reserved for another order. OOS confirmed.<br><br>
+        Order tracking: <em>"India Gate is out of stock. Refund of AED 12.50 initiated — credited in 24 hours."</em><br><br>
+        Customer is cooking dinner.
+      </div>
+    </div>
+
+    <!-- Right: stage flow -->
+    <div>
+      <div class="stage-nav">
+        <button class="stage-btn active" id="sbtn-0" onclick="goToStage(0)">Browse</button>
+        <button class="stage-btn" id="sbtn-1" onclick="goToStage(1)">Cart</button>
+        <button class="stage-btn" id="sbtn-2" onclick="goToStage(2)">Checkout</button>
+        <button class="stage-btn" id="sbtn-3" onclick="goToStage(3)">Post-order</button>
+      </div>
+
+      <!-- BROWSE -->
+      <div class="stage-panel active" id="stage-0">
+        <div class="action-block">
+          <div class="action-head">
+            <span class="tag tag-purple">AI System</span>
+            <span class="action-title">Velocity signal detected</span>
+          </div>
+          <div class="action-desc">
+            The consumer signal layer's 60-second velocity counter flags India Gate: 6 units, 1 purchase every 4 minutes. Demand intelligence layer cross-references the fulfillment window — confidence at picking time is 68%, below the 80% silent fulfilment threshold. Substitution logic queued. Low-stock signal surfaced inline at browse stage — not an alarm, a nudge.
+          </div>
+        </div>
+
+        <div class="cx-preview">
+          <div class="cx-preview-lbl">What the customer sees</div>
+          <div class="cx-item-row">
+            <span style="width:32px;height:32px;background:var(--orange-bg);border:1px solid var(--orange-br);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--orange);flex-shrink:0;">IG</span>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:13px;">India Gate Premium Basmati Rice</div>
+              <div style="color:var(--yellow);font-size:12px;margin-top:2px;">⚡ Selling fast · Only a few left</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:700;color:var(--orange);">AED 12.50</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px;">Add to cart</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="next-btn" onclick="goToStage(1)">Customer adds to cart → Cart Stage</button>
+      </div>
+
+      <!-- CART -->
+      <div class="stage-panel" id="stage-1">
+        <div class="action-block">
+          <div class="action-head">
+            <span class="tag tag-purple">AI System</span>
+            <span class="action-title">Substitution activated at cart</span>
+          </div>
+          <div class="action-desc">
+            68% confidence — below 80% threshold. Customer tolerance model has no personal history (2 prior orders, both India Gate, no substitution events). Defaults to category-level logic with conservative bias: same price band, highest network acceptance rate first. Option 3 (lower tier) held back — offering a downgrade as the first pitch spends trust without recovering it.
+          </div>
+        </div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Substitution candidates — ranked by model</div>
+
+        <div class="sub-options">
+          <div class="sub-opt" id="sub-0">
+            <div class="sub-rank">1</div>
+            <div class="sub-info">
+              <div class="sub-name">Daawat Extra Long Basmati Rice</div>
+              <div class="sub-meta">1kg · Same price band · 42 units in stock</div>
+            </div>
+            <span class="sub-rate rate-hi">91% ✓</span>
+          </div>
+          <div class="sub-opt" id="sub-1" style="opacity:0.4;pointer-events:none;">
+            <div class="sub-rank">2</div>
+            <div class="sub-info">
+              <div class="sub-name">Kohinoor Super Basmati Rice</div>
+              <div class="sub-meta">1kg · AED 16.75 · Premium · 28 units</div>
+            </div>
+            <span class="sub-rate rate-mid">73% ✓</span>
+          </div>
+          <div class="sub-opt" id="sub-2" style="opacity:0.25;pointer-events:none;">
+            <div class="sub-rank">3</div>
+            <div class="sub-info">
+              <div class="sub-name">Lal Qilla Traditional Basmati</div>
+              <div class="sub-meta">1kg · AED 9.95 · Lower tier · 55 units</div>
+            </div>
+            <span class="sub-rate rate-mid">82% ✓</span>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;padding:10px 13px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;font-size:13px;color:var(--text-2);font-style:italic;">
+          "India Gate is moving fast at your store — most customers also love Daawat Extra Long. Want to swap it in?"
+        </div>
+
+        <div class="action-btns">
+          <button class="btn-yes" onclick="cartAccept()">✓ Accept Daawat</button>
+          <button class="btn-no" onclick="cartReject()">✗ Reject — keep India Gate</button>
+        </div>
+        <div class="feedback-box hidden" id="cart-feedback"></div>
+      </div>
+
+      <!-- CHECKOUT -->
+      <div class="stage-panel" id="stage-2">
+        <div class="action-block">
+          <div class="action-head">
+            <span class="tag tag-purple">AI System</span>
+            <span class="action-title">Option 1 rejected — escalating at checkout</span>
+          </div>
+          <div class="action-desc">
+            Rejection written to customer tolerance model. At checkout, Option 2 (Kohinoor) is surfaced with premium framing — different angle, not a repeat pitch. Option 3 (Lal Qilla, lower tier) remains suppressed — a downgrade after two rejections at dinner-time damages trust more than it recovers.
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px;padding:10px 13px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;font-size:13px;color:var(--text-2);font-style:italic;">
+          "Daawat is running low too. <strong style="font-style:normal;">Kohinoor Super Basmati</strong> is available and highly rated by customers with similar orders."
+        </div>
+
+        <div class="sub-options">
+          <div class="sub-opt" id="sub-co-1">
+            <div class="sub-rank">★</div>
+            <div class="sub-info">
+              <div class="sub-name">Kohinoor Super Basmati Rice</div>
+              <div class="sub-meta">1kg · Premium · AED 16.75 · 28 units in stock</div>
+            </div>
+            <span class="sub-rate rate-mid">73% ✓</span>
+          </div>
+        </div>
+
+        <div class="action-btns">
+          <button class="btn-yes" onclick="checkoutAccept()">✓ Accept Kohinoor</button>
+          <button class="btn-no" onclick="checkoutReject()">✗ Reject all — proceed with India Gate</button>
+        </div>
+        <div class="feedback-box hidden" id="checkout-feedback"></div>
+      </div>
+
+      <!-- POST-ORDER -->
+      <div class="stage-panel" id="stage-3">
+        <div class="warning-box">
+          ⚠️ This stage should not exist in the AI-native model. OOS should be caught at cart or checkout. Reaching post-order is the failure mode the system is designed to prevent.
+        </div>
+
+        <div class="action-block">
+          <div class="action-head">
+            <span class="tag tag-yellow">Human Escalation</span>
+            <span class="action-title">Customer agent — recovery context package</span>
+          </div>
+          <div class="action-desc">
+            Both substitutions rejected. India Gate confirmed OOS at packing. System escalates to customer agent — not for a scripted apology, but with full context to enable real recovery.
+          </div>
+        </div>
+
+        <div class="escalation-box">
+          <div class="esc-title">Agent Context Package</div>
+          <div class="esc-row"><span style="font-weight:700;color:var(--yellow);margin-right:2px;">—</span> Order placed at 7:15pm (dinner-time, high-intent)</div>
+          <div class="esc-row"><span style="font-weight:700;color:var(--yellow);margin-right:2px;">—</span> 2 substitutions offered and rejected — cart + checkout</div>
+          <div class="esc-row"><span style="font-weight:700;color:var(--yellow);margin-right:2px;">—</span> 4-order history · Avg value AED 85 · Low churn risk threshold</div>
+          <div class="esc-row"><span style="font-weight:700;color:var(--red);margin-right:2px;">!</span> High churn risk: dinner-time + rejected substitutions pattern</div>
+          <div class="esc-row"><span style="font-weight:700;color:var(--red);margin-right:2px;">✕</span> Do not offer Lal Qilla — suppressed by model logic, already considered</div>
+        </div>
+
+        <div class="learn-box">
+          <div class="learn-title">What the system learns from this interaction</div>
+          <div class="learn-item">Rejects brand substitutions in staple rice — high brand loyalty signal written to tolerance model</div>
+          <div class="learn-item">Rejects price navigation in both directions — neither premium nor economy acceptable for this category</div>
+          <div class="learn-item">Silent fulfilment threshold raised from 80% → 90% for this customer</div>
+          <div class="learn-item">Future: if India Gate OOS risk >30%, surface honest availability signal at browse stage — before basket is built</div>
+          <div class="learn-item">Customer tolerance model fully personalises after 3 orders — next session uses personal model, not category defaults</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     TAB 4: DEMAND SCENARIOS
+════════════════════════════════════════ -->
+<div id="tab-scenarios" class="tab-content">
+  <p class="section-intro">
+    The demand intelligence layer is the earliest point of intervention — before the order is placed, before the picker is assigned, before the promise is broken. Two scenarios show how it operates in practice.
+  </p>
+
+  <div class="scenario-toggle">
+    <button class="scenario-btn active" onclick="switchScenario('yf', this)">Yellow Friday Demand Spike</button>
+    <button class="scenario-btn" onclick="switchScenario('sa', this)">Shopping Assistant Bundle</button>
+    <button class="scenario-btn" onclick="switchScenario('b2b', this)">B2B Client Configuration</button>
+  </div>
+
+  <!-- YELLOW FRIDAY -->
+  <div class="scenario-panel active" id="sc-yf">
+    <div class="timeline-wrap">
+      <div class="timeline">
+        <div class="tl-step active" id="tl-0" onclick="selectStep(0)">
+          <div class="tl-dot" style="font-size:10px;font-weight:800;letter-spacing:-0.3px;">T−48h</div>
+          <div class="tl-label">Forecast<br>signal</div>
+        </div>
+        <div class="tl-step" id="tl-1" onclick="selectStep(1)">
+          <div class="tl-dot" style="font-size:10px;font-weight:800;letter-spacing:-0.3px;">T−24h</div>
+          <div class="tl-label">Pre-<br>positioning</div>
+        </div>
+        <div class="tl-step" id="tl-2" onclick="selectStep(2)">
+          <div class="tl-dot" style="font-size:10px;font-weight:800;letter-spacing:-0.3px;">6pm</div>
+          <div class="tl-label">Velocity<br>spike</div>
+        </div>
+        <div class="tl-step" id="tl-3" onclick="selectStep(3)">
+          <div class="tl-dot" style="font-size:10px;font-weight:800;letter-spacing:-0.3px;">Result</div>
+          <div class="tl-label">vs. last<br>year</div>
+        </div>
+      </div>
+
+      <div class="tl-detail" id="tl-detail"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Why this matters for Section A</div>
+      <p style="font-size:13px;color:var(--text-2);line-height:1.7;">
+        The consumer signal layer's velocity counter (60-second cadence) feeds the demand intelligence layer's 15-minute pre-positioning cycle. Without this loop, Yellow Friday looks like any other Friday until 6pm — at which point the system is already behind. Forward prediction is not about being smarter. It's about acting <strong>before</strong> the constraint arrives at the customer.
+      </p>
+    </div>
+  </div>
+
+  <!-- SHOPPING ASSISTANT BUNDLE -->
+  <div class="scenario-panel" id="sc-sa">
+    <p style="font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:20px;max-width:740px;">
+      The shopping assistant knows current stock. It doesn't know velocity — how fast each item is selling toward OOS at this moment. An item with 4 units left and 2 purchases every 2 minutes is effectively OOS in under 4 minutes. Recommending it confidently in a bundle is a broken experience in slow motion.
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+
+      <!-- TODAY -->
+      <div class="card">
+        <div class="card-title" style="color:var(--red);">Today — Current-stock check only</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:14px;">
+          Customer searches <em>"dinner party for 8 people."</em> Assistant recommends a bundle. Each item passes a stock check at recommendation time. All 5 show as available.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:7px;font-size:12px;">
+            <span>🍚 Basmati Rice</span><span style="color:var(--text-3);font-size:11px;">45 units</span><span style="color:var(--green);font-weight:700;">✓ Added</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:7px;font-size:12px;">
+            <span>🫙 Cooking Oil</span><span style="color:var(--text-3);font-size:11px;">23 units</span><span style="color:var(--green);font-weight:700;">✓ Added</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:7px;font-size:12px;">
+            <span>🌿 Saffron Strands</span><span style="color:var(--text-3);font-size:11px;">4 units</span><span style="color:var(--green);font-weight:700;">✓ Added</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:7px;font-size:12px;">
+            <span>🥛 Greek Yogurt</span><span style="color:var(--text-3);font-size:11px;">15 units</span><span style="color:var(--green);font-weight:700;">✓ Added</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:7px;font-size:12px;">
+            <span>🌱 Fresh Herbs</span><span style="color:var(--text-3);font-size:11px;">8 units</span><span style="color:var(--green);font-weight:700;">✓ Added</span>
+          </div>
+        </div>
+        <div style="padding:11px 13px;background:var(--red-bg);border:1px solid var(--red-br);border-radius:8px;font-size:12px;color:var(--red);line-height:1.6;">
+          ⏱ 4 minutes later at cart: Saffron and Fresh Herbs cross OOS threshold. Cart soft check fires. The basket the assistant confidently built — broken before the order is placed.
+        </div>
+      </div>
+
+      <!-- AI-NATIVE -->
+      <div class="card">
+        <div class="card-title" style="color:var(--green);">AI-Native — Velocity-aware recommendations</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:14px;">
+          Same search. Before surfacing the bundle, every candidate is checked against the demand intelligence layer: <strong>predicted availability through the next 45 minutes</strong>, not current stock.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:7px;font-size:12px;">
+            <span>🍚 Basmati Rice</span><span style="color:var(--text-3);font-size:11px;">94% confidence</span><span style="color:var(--green);font-weight:700;">✓ Added</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:7px;font-size:12px;">
+            <span>🫙 Cooking Oil</span><span style="color:var(--text-3);font-size:11px;">91% confidence</span><span style="color:var(--green);font-weight:700;">✓ Added</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--red-bg);border:1px solid var(--red-br);border-radius:7px;font-size:12px;opacity:0.8;">
+            <span>🌿 Saffron Strands</span><span style="color:var(--red);font-size:11px;">OOS in ~4 min</span><span style="color:var(--red);font-weight:700;">✗ Suppressed</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:7px;font-size:12px;">
+            <span>🥛 Greek Yogurt</span><span style="color:var(--text-3);font-size:11px;">88% confidence</span><span style="color:var(--green);font-weight:700;">✓ Added</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--yellow-bg);border:1px solid var(--yellow-br);border-radius:7px;font-size:12px;">
+            <span>🌱 Fresh Herbs</span><span style="color:var(--yellow);font-size:11px;">⚡ Selling fast</span><span style="color:var(--green);font-weight:700;">✓ With signal</span>
+          </div>
+        </div>
+        <div style="padding:11px 13px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:8px;font-size:12px;color:var(--green);line-height:1.6;">
+          Bundle of 4 items surfaced. Where Saffron would have appeared: <em style="color:var(--text-2);">"Saffron is running low at your store right now — here's what customers making this dish also chose."</em> A choice, not a gap.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">The Metric Shift — What Changes the Model's Behaviour</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;">
+        <div style="padding:13px;background:var(--red-bg);border:1px solid var(--red-br);border-radius:9px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--red);margin-bottom:6px;">Today's objective</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:5px;">Click-through rate on recommendations</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.55;">Did the customer tap "Add bundle"? Optimises for engagement. A broken basket that gets added is a win by this metric.</div>
+        </div>
+        <div style="padding:13px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:9px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--green);margin-bottom:6px;">AI-Native objective</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:5px;">Fulfillment rate on recommended baskets</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.55;">Did every item the assistant recommended actually arrive? Different objective, different model incentive, different product.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B2B CONFIG -->
+  <div class="scenario-panel" id="sc-b2b">
+    <p style="font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:20px;max-width:740px;">
+      Every threshold in the system — promise display, substitution trigger, communication delay — is client-configurable. The same five-layer architecture serves a cost-first, high-volume platform and a premium retailer with completely different SLAs. Nothing is hardcoded.
+    </p>
+
+    <div class="b2b-grid">
+      <!-- Client A -->
+      <div class="b2b-card">
+        <div class="b2b-header b2b-header-orange">
+          <span style="font-size:28px;">🛒</span>
+          <div>
+            <div class="b2b-client-name">High-Volume Platform</div>
+            <div class="b2b-client-sub">Cost-first · 500K+ orders/day · Wide geo coverage</div>
+          </div>
+        </div>
+        <div class="b2b-body">
+          <div class="b2b-row"><span class="b2b-key">Promise display</span><span class="b2b-val">Point estimate always — no uncertainty exposed to customer</span></div>
+          <div class="b2b-row"><span class="b2b-key">Silent delay</span><span class="b2b-val">Up to 8 min — no notification below threshold</span></div>
+          <div class="b2b-row"><span class="b2b-key">Sub trigger</span><span class="b2b-val">OOS confidence ≥70% — more aggressive, wider sub net</span></div>
+          <div class="b2b-row"><span class="b2b-key">Communication</span><span class="b2b-val">Proactive only for >15 min delays</span></div>
+          <div class="b2b-row"><span class="b2b-key">SLA band</span><span class="b2b-val">20–40 min — wider acceptable window</span></div>
+          <div class="b2b-row"><span class="b2b-key">Human escalation</span><span class="b2b-val">>20 min breach + high LTV customer only</span></div>
+        </div>
+      </div>
+
+      <!-- Client B -->
+      <div class="b2b-card">
+        <div class="b2b-header b2b-header-purple">
+          <span style="font-size:28px;">🏪</span>
+          <div>
+            <div class="b2b-client-name">Premium Retail</div>
+            <div class="b2b-client-sub">Quality-first · 80K orders/day · Urban density</div>
+          </div>
+        </div>
+        <div class="b2b-body">
+          <div class="b2b-row"><span class="b2b-key">Promise display</span><span class="b2b-val">Range at confidence 70–90% — honesty over confidence</span></div>
+          <div class="b2b-row"><span class="b2b-key">Silent delay</span><span class="b2b-val">Max 3 min — customers expect precision</span></div>
+          <div class="b2b-row"><span class="b2b-key">Sub trigger</span><span class="b2b-val">OOS confidence ≥90% — conservative, brand-first</span></div>
+          <div class="b2b-row"><span class="b2b-key">Communication</span><span class="b2b-val">Proactive at 3+ min — push with revised ETA</span></div>
+          <div class="b2b-row"><span class="b2b-key">SLA band</span><span class="b2b-val">10–20 min — tight window, high accuracy required</span></div>
+          <div class="b2b-row"><span class="b2b-key">Human escalation</span><span class="b2b-val">>8 min breach OR any substitution rejection</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b2b-insight" style="margin-top:16px;">
+      <strong>The insight behind B2B config:</strong> A high-volume platform's customer expects speed and will tolerate a substitution. A premium retailer's customer expects precision and reads a substitution offer as a quality signal about the store. Same architecture. Different trust contracts. The config layer is what makes Shipsy a platform, not a point solution.
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     TAB 5: SCALE MODEL
+════════════════════════════════════════ -->
+<div id="tab-scale" class="tab-content">
+  <p class="section-intro">
+    At Noon, the system handles 150K orders/day across 14 dark store zones — a relatively dense, homogeneous market. Scaling to 100 cities means cold-starting in Chennai, Nairobi, and São Paulo with no local data. The scale model is a blueprint for that transition.
+  </p>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title">Three-Phase Scale Progression</div>
+    <div class="phase-grid" style="margin-top:8px;">
+
+      <div class="phase-card ph-1">
+        <div class="phase-hd">
+          <div class="phase-num">Phase 1</div>
+          <div class="phase-title">Foundation — 1 to 10 cities</div>
+          <div class="phase-timeline-lbl">Months 0–6 per city cohort</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-metric"><span class="pm-key">Cold start method</span><span class="pm-val">Competitor data + manual validation</span></div>
+          <div class="phase-metric"><span class="pm-key">Time to baseline accuracy</span><span class="pm-val">3 months</span></div>
+          <div class="phase-metric"><span class="pm-key">Merchandiser : city</span><span class="pm-val">1 : 3</span></div>
+          <div class="phase-metric"><span class="pm-key">Promise display</span><span class="pm-val">Wide bands — conservative</span></div>
+          <div class="phase-metric"><span class="pm-key">Substitution graph</span><span class="pm-val">City-siloed, no network</span></div>
+          <div class="phase-metric"><span class="pm-key">Model retraining</span><span class="pm-val">Daily per city</span></div>
+        </div>
+      </div>
+
+      <div class="phase-card ph-2">
+        <div class="phase-hd">
+          <div class="phase-num">Phase 2</div>
+          <div class="phase-title">Network Effects — 10 to 50 cities</div>
+          <div class="phase-timeline-lbl">Months 6–18 cumulative</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-metric"><span class="pm-key">Cold start method</span><span class="pm-val">Nearest cluster transfer learning</span></div>
+          <div class="phase-metric"><span class="pm-key">Time to baseline accuracy</span><span class="pm-val">6 weeks</span></div>
+          <div class="phase-metric"><span class="pm-key">Merchandiser : city</span><span class="pm-val">1 : 10</span></div>
+          <div class="phase-metric"><span class="pm-key">Promise display</span><span class="pm-val">Tighter bands — confidence grows</span></div>
+          <div class="phase-metric"><span class="pm-key">Substitution graph</span><span class="pm-val">Spans hub clusters, cross-city</span></div>
+          <div class="phase-metric"><span class="pm-key">Model retraining</span><span class="pm-val">Weekly on network data</span></div>
+        </div>
+      </div>
+
+      <div class="phase-card ph-3">
+        <div class="phase-hd">
+          <div class="phase-num">Phase 3</div>
+          <div class="phase-title">Autonomy — 50 to 100 cities</div>
+          <div class="phase-timeline-lbl">Months 18–36 cumulative</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-metric"><span class="pm-key">Cold start method</span><span class="pm-val">Full global model inheritance</span></div>
+          <div class="phase-metric"><span class="pm-key">Time to baseline accuracy</span><span class="pm-val">1 week</span></div>
+          <div class="phase-metric"><span class="pm-key">Merchandiser : city</span><span class="pm-val">1 : 25</span></div>
+          <div class="phase-metric"><span class="pm-key">Promise display</span><span class="pm-val">Point estimates from day 1</span></div>
+          <div class="phase-metric"><span class="pm-key">Substitution graph</span><span class="pm-val">Global — new city inherits immediately</span></div>
+          <div class="phase-metric"><span class="pm-key">Model retraining</span><span class="pm-val">Continuous — network feedback loop</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="coldstart-grid">
+    <div class="card">
+      <div class="card-title">Cold Start Playbook — New City</div>
+      <div class="coldstart-steps" style="margin-top:8px;">
+        <div class="cs-step"><div class="cs-num">1</div><div>Gather 60+ days of competitor pricing, assortment, and order velocity data for the target city</div></div>
+        <div class="cs-step"><div class="cs-num">2</div><div>Identify nearest comparable cluster — matched on population density, cuisine patterns, and income bracket</div></div>
+        <div class="cs-step"><div class="cs-num">3</div><div>Transfer model weights from matched cluster. Substitution graph, demand velocity priors, LM multipliers all inherited</div></div>
+        <div class="cs-step"><div class="cs-num">4</div><div>Week 1–4: conservative mode — wide promise bands, no silent substitution, human override available</div></div>
+        <div class="cs-step"><div class="cs-num">5</div><div>Live calibration: compare promised vs actual ETA daily. Tighten bands as accuracy builds above 85%</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ops Headcount Model</div>
+      <div style="margin-top:8px;font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:14px;">
+        The human handoff points in the architecture determine headcount — not the other way round. As the model takes more decisions, humans shift from operators to exception handlers.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="padding:11px 13px;background:var(--orange-bg);border:1px solid var(--orange-br);border-radius:9px;">
+          <div style="font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px;">Phase 1 (1–10 cities)</div>
+          <div style="font-size:12px;color:var(--text-2);">+1 DS manager per 2 cities · Merchandiser validates model daily · Manual override rate ~40%</div>
+        </div>
+        <div style="padding:11px 13px;background:var(--yellow-bg);border:1px solid var(--yellow-br);border-radius:9px;">
+          <div style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px;">Phase 2 (10–50 cities)</div>
+          <div style="font-size:12px;color:var(--text-2);">1 merchandiser per 10 cities · Escalation-only model · Manual override rate ~12%</div>
+        </div>
+        <div style="padding:11px 13px;background:var(--green-bg);border:1px solid var(--green-br);border-radius:9px;">
+          <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px;">Phase 3 (50–100 cities)</div>
+          <div style="font-size:12px;color:var(--text-2);">1 merchandiser per 25 cities · Exception handling only · Manual override rate <3%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     TAB 6: RISKS & FAILURE MODES
+════════════════════════════════════════ -->
+<div id="tab-risks" class="tab-content">
+  <p class="section-intro">
+    Every AI-native system has failure modes that are worse than the manual process it replaces — because the manual process fails loudly, and AI fails silently. Four failure modes that need to be designed against, not discovered in production.
+  </p>
+
+  <div class="risk-grid">
+
+    <!-- FM1 -->
+    <div class="risk-card">
+      <div class="risk-header">
+        <div class="risk-num">F1</div>
+        <div>
+          <div class="risk-fm">FM1 — Forward Prediction Failure</div>
+          <div class="risk-title">The Confident Wrong Promise</div>
+          <div class="risk-subtitle">Promise engine sets a 10-min SLA at 88% confidence. The customer plans their evening around it. The order arrives at 31 minutes.</div>
+        </div>
+      </div>
+      <div class="risk-body">
+        <div class="risk-row">
+          <span class="risk-lbl rl-trigger">Failure chain</span>
+          <span class="risk-row-text">Campaign push fires to 40K customers simultaneously → picker_lf jumps from 0.6 to 4.2 → exponential FFT amplifies 14× → traffic incident adds 8 min to LM simultaneously. Independent confidence scores don't compound cleanly when failure modes are correlated — peak demand causes both picker congestion and rider traffic.</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-lbl rl-mitigation">Mitigation</span>
+          <span class="risk-row-text">Anti-compounding rule: when picker_lf is trending up AND last-mile has recent incidents, mandate range display regardless of point estimate. Campaign push notifications must be a direct input to the promise engine — cross-team data contract required before go-live.</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-lbl rl-rec">Recommendation</span>
+          <span class="risk-row-text">Track weekly: do promises made at "90% confidence" actually deliver on time 90% of the time? Target: stated confidence within 5 points of actual accuracy. If it drifts beyond 5 points, auto-widen range thresholds until the model recalibrates. This is a PM-owned metric, not data science's.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FM2 -->
+    <div class="risk-card">
+      <div class="risk-header">
+        <div class="risk-num">F2</div>
+        <div>
+          <div class="risk-fm">FM2 — Closed-Loop Learning Failure</div>
+          <div class="risk-title">The Substitution Bias Loop</div>
+          <div class="risk-subtitle">After 8 months, top 5 substitutions = 78% of all offers. Acceptance rate: 84%. The pattern looks healthy. It isn't.</div>
+        </div>
+      </div>
+      <div class="risk-body">
+        <div class="risk-row">
+          <span class="risk-lbl rl-trigger">Why the loop forms</span>
+          <span class="risk-row-text">Acceptance rate measures compliance, not satisfaction. A customer offered a sub at checkout — committed, facing a refund as the alternative, under time pressure — accepts more readily than someone making a genuine choice. The model optimises for what gets accepted. Those subs get offered more. Customers comply more. The model narrows further — learning precisely from the wrong objective.</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-lbl rl-mitigation">Mitigation</span>
+          <span class="risk-row-text">Redefine the objective function: composite metric = acceptance rate (40%) × post-order satisfaction signal (30%) × no support contact about the sub (20%) × inverse reorder rate of original within 7 days (10%). Diversity audit: if top 5 subs capture >50% of all offers in any 30-day window, auto-flag. 5% structured exploration rate — same quality criteria, different recommendation.</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-lbl rl-rec">Recommendation</span>
+          <span class="risk-row-text">Redefine the objective function before launch, not after you notice the bias 8 months in. Track substitution variety rate as a health metric from day 1. Acceptance rate is a vanity metric if you don't track what happens after the customer accepts.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FM3 -->
+    <div class="risk-card">
+      <div class="risk-header">
+        <div class="risk-num">F3</div>
+        <div>
+          <div class="risk-fm">FM3 — Proactive Shaping Failure</div>
+          <div class="risk-title">Promise Gaming</div>
+          <div class="risk-subtitle">Dynamic SLAs cause customers to only order when the system shows 8 min, abandon carts when it shows 18. The peak-hour problem gets worse.</div>
+        </div>
+      </div>
+      <div class="risk-body">
+        <div class="risk-row">
+          <span class="risk-lbl rl-trigger">Why it's harder than it looks</span>
+          <span class="risk-row-text">The system is being honest. The problem is that honesty, expressed without thought to customer behaviour, produces a perverse incentive. Customers learn to refresh until the ETA drops. Demand concentrates in off-peak. Peak-hour congestion self-reinforces. The system is working exactly as designed — and making things worse.</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-lbl rl-mitigation">Mitigation</span>
+          <span class="risk-row-text">When a customer browses during a high-SLA window without adding to cart: surface "It's a busy evening — delivery is about 18 min right now. Tap to get notified when it drops below 12." Converts abandonment into a notification opt-in. Range display during high-SLA periods removes the specific signal customers use to time their orders.</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-lbl rl-rec">Recommendation</span>
+          <span class="risk-row-text">Proactive notification opt-in before the abandonment decision. The confidence calibration work in FM1 is what makes the SLA trustworthy enough that customers eventually stop gaming it. Accurate promises delivered consistently close the gap permanently — the notification manages conversion while trust is being built.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FM4 -->
+    <div class="risk-card">
+      <div class="risk-header">
+        <div class="risk-num">F4</div>
+        <div>
+          <div class="risk-fm">FM4 — Human Handoff Design Failure</div>
+          <div class="risk-title">Ops Team Trust</div>
+          <div class="risk-subtitle">Model overrides the dark store manager twice. Manager was right both times. Friday morning: autonomous pre-positioning gets turned off.</div>
+        </div>
+      </div>
+      <div class="risk-body">
+        <div class="risk-row">
+          <span class="risk-lbl rl-trigger">Why this failure is permanent if not designed for</span>
+          <span class="risk-row-text">Two wrong calls from a black box with no explanation. Without answers to "was the model confident or uncertain?", "what signal did it misread?", "will this happen again?" — the rational response is distrust. Two identical wrong calls from a human colleague would be forgiven. From a system, they end the relationship.</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-lbl rl-mitigation">Mitigation</span>
+          <span class="risk-row-text">Every recommendation surfaces confidence + top 2 driving signals: "Recommending +60 units of Basmati — search velocity 2.1× baseline, Ramadan in 38 hours. Confidence: 74%." When wrong, system acknowledges proactively before the manager does. One-tap override with optional feedback. Trust ladder: weeks 1–4 recommendations only → week 5 auto-execute with notification → month 3 auto-execute with exception alerts.</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-lbl rl-rec">Recommendation</span>
+          <span class="risk-row-text">The system retains ops team trust after a failure if three conditions are met: it acknowledged the failure before being told, it explained what signal it misread, it showed what changed to prevent the same failure. If all three are true, a failure can build trust. PM owns a weekly override review — if a manager has overridden 7 times in 2 weeks and been right 6, the model team needs to know before the manager loses faith.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:20px;padding:14px 18px;background:var(--purple-bg);border:1px solid var(--purple-br);border-radius:10px;font-size:13px;color:var(--text-2);line-height:1.7;">
+    <strong style="color:var(--purple);">Design principle behind all four:</strong> The failure mode of an AI system is not "model is wrong." It's "model is wrong and nobody notices for weeks." Every FM above has an observable signal, a human escalation path, and a conservative fallback. The system is not designed to be infallible — it's designed to fail loudly.
+  </div>
+</div>
+
+
+<script>
+// ── TAB NAVIGATION ──────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── ARCHITECTURE DATA ────────────────────────────
+const LAYERS = [
+  {
+    name: 'Consumer Signal Layer',
+    desc: 'Captures what customers are doing right now and streams it into the intelligence pipeline at 60-second cadence. Every browse, search, and basket add is an operational input — not just a UX event.',
+    todayGap: 'Signals exist but aren\'t fed to operations in real-time. The shopping assistant knows current stock — not velocity or predicted availability.',
+    aiNative: 'Streaming pipeline updates demand velocity scores every 60 seconds per dark store zone. Signal latency of >90 seconds auto-downgrades confidence in the promise engine.',
+    signals: [
+      { l: 'Search queries', v: 'Real-time · 60s cadence' },
+      { l: 'Browse depth + dwell', v: 'Real-time · AI-native addition' },
+      { l: 'Basket composition', v: 'Real-time · OOS risk scoring' },
+      { l: 'Session context', v: 'Real-time · Time, device, event' },
+      { l: 'Order history', v: 'Batch · Nightly update' },
+      { l: 'Sub accept/reject history', v: 'Batch · Customer tolerance' },
+    ],
+    handoff: 'None at this layer. Merchandiser has read-only trending signals dashboard. Layer 2 escalates when action is needed.'
+  },
+  {
+    name: 'Demand Intelligence Layer',
+    desc: 'Translates consumer signals into inventory pre-positioning decisions before demand peaks arrive at checkout. Time-series forecasting with real-time signal adjustment — detects deviations a formula cannot.',
+    todayGap: 'Manual stock adjustments based on last year\'s data. Viral demand moments invisible until the morning report. Pre-positioning is backward-looking.',
+    aiNative: 'ML demand velocity score per SKU per dark store zone, updated every 15 min. Detects 3x baseline velocity spikes and triggers pre-positioning before ops teams see the data.',
+    signals: [
+      { l: 'Demand velocity score', v: 'Per SKU · Per zone · 15 min' },
+      { l: 'Festival calendar', v: 'Configured · 48h pre-positioning' },
+      { l: 'Viral spike detection', v: '3× baseline → auto-escalate' },
+      { l: 'Cold start method', v: 'Competitor data + nearby hubs' },
+      { l: 'Network transfer', v: 'Nearest comparable cluster' },
+      { l: 'Pre-positioning', v: 'Pick list update — no notification' },
+    ],
+    handoff: 'Merchandiser alerted when velocity spike exceeds available stock, supplier SKU is confirmed delayed, or system recommendation conflicts with an active manual override.'
+  },
+  {
+    name: 'Promise Engine',
+    desc: 'Sets a dynamic, honest delivery SLA per order at checkout using the real Noon formula. The AI-native layer extends it with forward load prediction and confidence-based display. See Tab 2 for the live simulator.',
+    todayGap: 'Formula uses current picker_load_factor. But picking begins 2–4 min after order placement — at peak this gap is 3–5 min of underestimation. BT is fixed at 3 min regardless of demand velocity.',
+    aiNative: 'Forward load prediction models picker_lf at the moment picking begins. Dynamic BT expands as demand velocity rises. Confidence-based display prevents over-promising under uncertainty.',
+    signals: [
+      { l: 'HO', v: 'Median actual @ DS × geohash' },
+      { l: 'LM', v: 'Google × 75th %ile multiplier' },
+      { l: 'FFT', v: '0.285 × exp(0.525 × picker_lf)' },
+      { l: 'WT', v: 'DA availability check' },
+      { l: 'BT (AI-native)', v: 'Dynamic · demand-velocity driven' },
+      { l: 'Confidence display', v: '>90% point · 70–90% range · <70% wide' },
+    ],
+    handoff: 'Dark store manager can override the SLA band for their zone via one-click escalation. Every override logged as a correction signal to the model.'
+  },
+  {
+    name: 'Substitution Intelligence',
+    desc: 'Predicts acceptable substitutions per customer × item × context. Surfaces them at browse or cart — before the order breaks. Post-order substitution should not exist in the AI-native model. See Tab 3 for the live scenario.',
+    todayGap: 'Static fallback list. OOS detected at packing. Customer notified post-order with refund. No substitution offered before the promise was made.',
+    aiNative: 'Item substitution graph + customer tolerance model + context layer. 80% confidence threshold for silent fulfilment. Below threshold → substitution at cart, not post-order.',
+    signals: [
+      { l: 'Item substitution graph', v: 'Network-wide SKU pairs' },
+      { l: 'Customer tolerance model', v: 'Activates after 3 orders' },
+      { l: 'Cold start default', v: '>80% network acceptance only' },
+      { l: 'Stage intervention', v: 'Browse / Cart / Checkout' },
+      { l: 'No-offer threshold', v: '>95% stock confidence → no offer needed' },
+      { l: 'Learning cadence', v: 'Every accept/reject → nightly' },
+    ],
+    handoff: 'Customer agent only when all substitutions rejected + item confirmed OOS. Agent receives full context: rejection history, order time, customer lifetime value, what not to offer.'
+  },
+  {
+    name: 'Communication Layer',
+    desc: 'Decides when to tell the customer something has changed — and when to recover silently. Every proactive communication either builds or spends trust. The system has a communication budget per order.',
+    todayGap: 'No proactive communication for post-order delays. Customer finds out on the tracking screen when the clock passes the promised ETA. No coordinated response at scale.',
+    aiNative: 'Decision matrix: <3 min slip → silent. 3–8 min → context-dependent by customer type. >8 min → proactive + compensation. >15 min → offer cancel. Thresholds client-configurable.',
+    signals: [
+      { l: '<3 min delay', v: 'Silent recovery' },
+      { l: '3–8 min · first-time', v: 'Proactive push: revised ETA' },
+      { l: '3–8 min · repeat (5+)', v: 'Silent — trust is built' },
+      { l: '>8 min · any', v: 'Push + ETA + AED 10 credit' },
+      { l: '>15 min · any', v: 'Push + ETA + cancel option' },
+      { l: 'B2B config', v: 'Thresholds per client — not hardcoded' },
+    ],
+    handoff: 'Customer agent for: rejected substitutions, >15 min breaches requiring cancel decision, any customer who replies to proactive communication with frustration.'
+  }
+];
+
+let currentLayer = 0;
+
+function selectLayer(idx) {
+  currentLayer = idx;
+  document.querySelectorAll('.layer').forEach((el, i) => el.classList.toggle('active', i === idx));
+  for (let i = 0; i < 4; i++) {
+    const arr = document.getElementById('arr-' + i);
+    arr.classList.toggle('active-flow', i === idx || i === idx - 1);
+  }
+  renderDetail(idx);
+}
+
+function renderDetail(idx) {
+  const d = LAYERS[idx];
+  const sigs = d.signals.map(s => `
+    <div class="signal-item">
+      <div class="s-label">${s.l}</div>
+      <div class="s-value">${s.v}</div>
+    </div>`).join('');
+
+  document.getElementById('layer-detail').innerHTML = `
+    <div class="detail-header">
+      <h3>${d.name}</h3>
+      <p>${d.desc}</p>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Key Signals & Parameters</div>
+      <div class="signal-grid">${sigs}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Today vs. AI-Native</div>
+      <div class="gap-row">
+        <div class="gap-box gap-today"><div class="gap-lbl">Today</div><div class="gap-txt">${d.todayGap}</div></div>
+        <div class="gap-box gap-ai"><div class="gap-lbl">AI-Native</div><div class="gap-txt">${d.aiNative}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Human Handoff</div>
+      <div class="handoff-box"><strong>When AI escalates:</strong> ${d.handoff}</div>
+    </div>`;
+}
+
+renderDetail(0);
+
+// ── PROMISE ENGINE ────────────────────────────────
+const LM_MULT = { morning: 1.1, afternoon: 1.2, peak_evening: 1.6, night: 1.1 };
+
+function calcETA(lf, items, riderAvail, slot) {
+  const HO = 3.5;
+  const LM = 4.0 * LM_MULT[slot];
+  const acceptance = Math.min(3, 0.285 * Math.exp(0.525 * lf));
+  const pickup = 0.5 + items * 0.2;
+  const FFT_est = acceptance + pickup;
+
+  let WTFFT;
+  if (FFT_est > riderAvail) {
+    WTFFT = FFT_est + 0.75;
+  } else {
+    WTFFT = Math.min(10, Math.max(FFT_est, 0.75 * riderAvail));
+  }
+
+  const BT = slot === 'peak_evening' ? Math.min(6, 3 + lf * 0.3) : 3;
+  const ETA = HO + LM + WTFFT + BT;
+
+  const pickerPenalty  = Math.min(0.35, lf * 0.045);
+  const peakPenalty    = slot === 'peak_evening' ? 0.1 : 0;
+  const riderPenalty   = riderAvail > 6 ? 0.15 : 0;
+  const confidence     = Math.max(0.45, 0.95 - pickerPenalty - peakPenalty - riderPenalty);
+
+  const forwardGap = parseFloat((lf * 0.3).toFixed(1));
+
+  return { HO, LM, acceptance, pickup, WTFFT, BT, ETA, confidence, forwardGap };
+}
+
+function updatePromise() {
+  const lf    = parseFloat(document.getElementById('picker-lf').value);
+  const items = parseInt(document.getElementById('basket-items').value);
+  const rider = parseFloat(document.getElementById('rider-avail').value);
+  const slot  = document.getElementById('time-slot').value;
+
+  document.getElementById('lf-val').textContent    = lf.toFixed(1);
+  document.getElementById('items-val').textContent  = items;
+  document.getElementById('rider-val').textContent  = rider.toFixed(1);
+
+  const r = calcETA(lf, items, rider, slot);
+
+  document.getElementById('eta-total').textContent  = Math.round(r.ETA);
+  document.getElementById('val-ho').textContent     = r.HO.toFixed(1) + ' min';
+  document.getElementById('val-lm').textContent     = r.LM.toFixed(1) + ' min';
+  document.getElementById('val-accept').textContent = r.acceptance.toFixed(2) + ' min';
+  document.getElementById('val-pickup').textContent = r.pickup.toFixed(1) + ' min';
+  document.getElementById('val-wtfft').textContent  = r.WTFFT.toFixed(2) + ' min';
+  document.getElementById('val-bt').textContent     = r.BT.toFixed(1) + ' min' + (slot === 'peak_evening' ? ' (dynamic)' : ' (fixed)');
+  document.getElementById('val-eta').textContent    = Math.round(r.ETA) + ' min';
+  document.getElementById('load-diff').textContent  = '+' + r.forwardGap + ' min';
+
+  const pct = Math.round(r.confidence * 100);
+  const pctEl = document.getElementById('conf-pct');
+  pctEl.textContent = pct + '%';
+  pctEl.style.color = pct >= 90 ? 'var(--green)' : pct > 70 ? 'var(--yellow)' : 'var(--red)';
+
+  const bar = document.getElementById('conf-bar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct >= 90 ? 'var(--green)' : pct > 70 ? 'var(--yellow)' : 'var(--red)';
+
+  const cv   = document.getElementById('customer-view');
+  const eta  = Math.round(r.ETA);
+  const rule = document.getElementById('conf-rule');
+
+  if (r.confidence >= 0.90) {
+    cv.className = 'customer-pill pill-point';
+    cv.textContent = `Arriving in ${eta} min`;
+    rule.innerHTML = `<strong>Point estimate shown</strong> — confidence ≥90%. Customer sees a single number the system can back with ≥90% historical accuracy.`;
+  } else if (r.confidence > 0.70) {
+    const hiRaw = Math.round(r.ETA * 1.25);
+    cv.className = 'customer-pill pill-range';
+    cv.textContent = `Arriving in ${eta}–${hiRaw} min`;
+    rule.innerHTML = `<strong>Range shown</strong> — confidence 70–90%. Multiple uncertain inputs prevent a reliable point estimate. Honest range surfaced instead. A/B test hypothesis: customers shown a range at this confidence will have higher 30-day retention than customers shown a false point estimate.`;
+  } else {
+    cv.className = 'customer-pill pill-wide';
+    cv.textContent = `Arriving in under ${eta + 10} min`;
+    rule.innerHTML = `<strong>Wide band shown</strong> — confidence <70%. System errs toward honesty. A customer who plans around 12 min and waits 31 min churns. A customer who sees "under 30 min" and gets it in 28 min converts again.`;
+  }
+}
+
+updatePromise();
+
+// ── SUBSTITUTION FLOW ────────────────────────────
+function goToStage(n) {
+  document.querySelectorAll('.stage-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.stage-btn').forEach((b, i) => {
+    b.classList.remove('active', 'done');
+    if (i < n) b.classList.add('done');
+  });
+  document.getElementById('stage-' + n).classList.add('active');
+  document.getElementById('sbtn-' + n).classList.add('active');
+}
+
+function cartAccept() {
+  document.getElementById('sub-0').classList.add('chosen');
+  // Mark cart stage done, and also mark checkout + post-order as bypassed (order fulfilled)
+  document.getElementById('sbtn-1').classList.add('done');
+  document.getElementById('sbtn-2').classList.add('done');
+  document.getElementById('sbtn-3').classList.add('done');
+  const fb = document.getElementById('cart-feedback');
+  fb.classList.remove('hidden');
+  fb.innerHTML = `
+    <div class="learn-box" style="margin-top:0;">
+      <div class="learn-title">Outcome: Substitution accepted at cart</div>
+      <div class="learn-item">Daawat accepted — tolerance model updated: open to brand substitutions in rice at same price band</div>
+      <div class="learn-item">Acceptance signal strengthens Daawat ↔ India Gate pair in item substitution graph</div>
+      <div class="learn-item">Order fulfils cleanly. Checkout and post-order stages never reached.</div>
+    </div>`;
+}
+
+function cartReject() {
+  document.getElementById('sub-0').classList.add('rejected-opt');
+  const fb = document.getElementById('cart-feedback');
+  fb.classList.remove('hidden');
+  fb.innerHTML = `
+    <div style="padding:10px 13px;background:var(--red-bg);border:1px solid var(--red-br);border-radius:8px;font-size:12px;color:var(--red);margin-top:0;">
+      Rejection logged. Customer tolerance model updated. Option 2 (Kohinoor) queued for checkout — different framing, different angle.
+    </div>
+    <button class="next-btn" onclick="goToStage(2)" style="margin-top:10px;">Customer proceeds to checkout →</button>`;
+}
+
+function checkoutAccept() {
+  document.getElementById('sub-co-1').classList.add('chosen');
+  const fb = document.getElementById('checkout-feedback');
+  fb.classList.remove('hidden');
+  fb.innerHTML = `
+    <div class="learn-box" style="margin-top:0;">
+      <div class="learn-title">Outcome: Premium substitution accepted at checkout</div>
+      <div class="learn-item">Kohinoor accepted — model updates: customer accepts upward price movement for quality substitutes in staple category</div>
+      <div class="learn-item">Price sensitivity model refined for this customer</div>
+      <div class="learn-item">Order fulfils cleanly. Post-order stage never reached.</div>
+    </div>`;
+}
+
+function checkoutReject() {
+  document.getElementById('sub-co-1').classList.add('rejected-opt');
+  const fb = document.getElementById('checkout-feedback');
+  fb.classList.remove('hidden');
+  fb.innerHTML = `
+    <div style="padding:10px 13px;background:var(--red-bg);border:1px solid var(--red-br);border-radius:8px;font-size:12px;color:var(--red);margin-top:0;">
+      Both substitutions rejected. Option 3 (Lal Qilla, lower tier) remains suppressed — offering a downgrade after two rejections damages trust more than it recovers. Order placed with India Gate at elevated OOS risk. Customer agent escalation queued.
+    </div>
+    <button class="next-btn" onclick="goToStage(3)" style="margin-top:10px;">Order placed → Post-order escalation →</button>`;
+}
+
+// ── SCENARIO TAB (TAB 4) ────────────────────────
+function switchScenario(key, btn) {
+  document.querySelectorAll('.scenario-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sc-' + key).classList.add('active');
+  btn.classList.add('active');
+}
+
+const TL_STEPS = [
+  {
+    label: 'T−48h — Festival Calendar Signal',
+    tag: 'Demand Intelligence',
+    body: 'Yellow Friday campaign entry in the festival calendar triggers the demand forecast model. No manual action. The system reads the event metadata — duration, category sensitivity, historical lift — and begins generating per-SKU velocity projections for the 14 dark store zones.',
+    bullets: [
+      'Projected velocity uplift: Basmati rice +320%, cooking oil +280%, beverages +190%, snacks +150%',
+      'Top 50 SKUs flagged across 14 zones — pre-positioning quantities calculated',
+      'Pick list updates prepared silently — no merchandiser notification at this stage',
+      'Forecast confidence at T−48h: 72% (model uncertainty still high — gap will narrow at T−24h)',
+    ]
+  },
+  {
+    label: 'T−24h — Silent Pre-positioning',
+    tag: 'Demand Intelligence → Ops',
+    body: 'Demand confidence has tightened to 87%. Pre-positioning quantities are locked. Pick lists update silently across dark stores. Merchandiser receives one alert — not about stock levels, but about 3 supplier delays flagged by the system that require human resolution.',
+    bullets: [
+      'Pick lists updated: 14 dark stores receive adjusted quantity targets — no manual counting',
+      'Supplier delay flag: 3 SKUs from one supplier confirmed delayed — merchandiser alerted',
+      'Merchandiser action: Confirm alternate sourcing for 3 SKUs. Everything else handled by model.',
+      'Customer sees: Nothing. No sale banner. No "selling fast" nudge. System works in background.',
+    ]
+  },
+  {
+    label: 'Day-of, 6pm — Velocity Spike',
+    tag: 'Consumer Signal Layer',
+    body: 'At 6:12pm, the 60-second velocity counter detects Basmati rice at 3.2× baseline velocity across 3 zones. Auto-escalation triggers: merchandiser receives a "Top 5 SKUs at risk" push. The promise engine simultaneously switches dynamic BT to 6-min cap. Picker load at 7.4 — FFT acceptance hits the 3-min ceiling.',
+    bullets: [
+      'Demand Intelligence auto-escalates — no human triggered this, model caught it before ops',
+      'Promise Engine: BT dynamically expands to 5.4 min (vs 3 min fixed) — customer sees honest ETA',
+      'Merchandiser reviews 5-SKU dashboard, approves emergency transfer from hub store for 2 SKUs',
+      'No customer-facing messaging changed — promise is honest, no need to explain the ops pressure',
+    ]
+  },
+  {
+    label: 'Outcome — vs. Last Year',
+    tag: 'Result',
+    body: 'Yellow Friday processed. The pre-positioning meant the peak hit a prepared system, not a surprised one. The spike was caught by signals, not by a warehouse manager checking a screen at 7pm.',
+    bullets: [
+      'OOS rate on pre-positioned top-20 SKUs: 0% — fully covered',
+      'Network-wide OOS: 0.3% (vs 0.5% baseline, vs 1.2% on last Yellow Friday without pre-positioning)',
+      'Promise accuracy: Maintained above target throughout peak window',
+      'Merchandiser interventions: 3 (supplier delays) — vs ~40 manual adjustments the previous year',
+    ]
+  }
+];
+
+let currentStep = 0;
+function selectStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.tl-step').forEach((el, i) => el.classList.toggle('active', i === n));
+  const s = TL_STEPS[n];
+  document.getElementById('tl-detail').innerHTML = `
+    <div class="tl-detail-head">
+      <span class="tag tag-purple">${s.tag}</span>
+      <span class="tl-detail-title">${s.label}</span>
+    </div>
+    <div class="tl-detail-body">${s.body}</div>
+    <div class="tl-bullets">
+      ${s.bullets.map(b => `<div class="tl-bullet"><span class="tl-bullet-dot">→</span><span>${b}</span></div>`).join('')}
+    </div>`;
+}
+selectStep(0);
+
+// ── OOS countdown
+let oosTime = 22;
+setInterval(() => {
+  if (oosTime > 0) oosTime--;
+  const el = document.getElementById('oos-timer');
+  if (el) el.textContent = oosTime;
+}, 3000);
+</script>
+
+</body>
+</html>
