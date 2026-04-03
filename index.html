@@ -711,16 +711,16 @@
     .risk-fm { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-bottom: 3px; }
     .risk-title { font-size: 14px; font-weight: 700; color: var(--text-1); margin-bottom: 4px; }
     .risk-subtitle { font-size: 12px; color: var(--text-2); line-height: 1.5; }
-    .risk-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
-    .risk-row { display: flex; gap: 8px; font-size: 12px; line-height: 1.55; }
+    .risk-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+    .risk-row { display: flex; flex-direction: column; gap: 5px; font-size: 12px; line-height: 1.6; }
     .risk-lbl {
-      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-      padding: 2px 6px; border-radius: 3px; flex-shrink: 0; height: fit-content; margin-top: 1px;
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+      padding: 2px 7px; border-radius: 3px; align-self: flex-start; white-space: nowrap;
     }
     .rl-trigger      { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-br); }
     .rl-mitigation   { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-br); }
     .rl-rec          { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-br); }
-    .risk-row-text   { color: var(--text-2); }
+    .risk-row-text   { color: var(--text-2); padding-left: 1px; }
 
     @media (max-width: 900px) {
       .arch-grid, .promise-grid, .sub-grid, .b2b-grid, .risk-grid, .coldstart-grid { grid-template-columns: 1fr; }
@@ -1529,7 +1529,7 @@
       </div>
       <div class="risk-body">
         <div class="risk-row">
-          <span class="risk-lbl rl-trigger">Why this failure is permanent if not designed for</span>
+          <span class="risk-lbl rl-trigger">Why it becomes permanent</span>
           <span class="risk-row-text">Two wrong calls from a black box with no explanation. Without answers to "was the model confident or uncertain?", "what signal did it misread?", "will this happen again?" — the rational response is distrust. Two identical wrong calls from a human colleague would be forgiven. From a system, they end the relationship.</span>
         </div>
         <div class="risk-row">
