@@ -1281,51 +1281,51 @@
   <!-- B2B CONFIG -->
   <div class="scenario-panel" id="sc-b2b">
     <p style="font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:20px;max-width:740px;">
-      Every threshold in the system — promise display, substitution trigger, communication delay — is client-configurable. The same five-layer architecture serves a cost-first, high-volume platform and a premium retailer with completely different SLAs. Nothing is hardcoded.
+      The same five-layer architecture serves enterprise clients with fundamentally different promise philosophies. Every threshold — confidence display, substitution trigger, override authority, trust ladder pace — is client-configured. The demand intelligence model is shared. Customer data never is.
     </p>
 
     <div class="b2b-grid">
-      <!-- Client A -->
+      <!-- Client A: Flipkart-type -->
       <div class="b2b-card">
         <div class="b2b-header b2b-header-orange">
-          <span style="font-size:28px;">🛒</span>
+          <div style="width:36px;height:36px;border-radius:8px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">FK</div>
           <div>
-            <div class="b2b-client-name">High-Volume Platform</div>
-            <div class="b2b-client-sub">Cost-first · 500K+ orders/day · Wide geo coverage</div>
+            <div class="b2b-client-name">High-volume platform (Flipkart-type)</div>
+            <div class="b2b-client-sub">Tech-forward · 500K+ orders/day · High customer promise tolerance</div>
           </div>
         </div>
         <div class="b2b-body">
-          <div class="b2b-row"><span class="b2b-key">Promise display</span><span class="b2b-val">Point estimate always — no uncertainty exposed to customer</span></div>
-          <div class="b2b-row"><span class="b2b-key">Silent delay</span><span class="b2b-val">Up to 8 min — no notification below threshold</span></div>
-          <div class="b2b-row"><span class="b2b-key">Sub trigger</span><span class="b2b-val">OOS confidence ≥70% — more aggressive, wider sub net</span></div>
-          <div class="b2b-row"><span class="b2b-key">Communication</span><span class="b2b-val">Proactive only for >15 min delays</span></div>
-          <div class="b2b-row"><span class="b2b-key">SLA band</span><span class="b2b-val">20–40 min — wider acceptable window</span></div>
-          <div class="b2b-row"><span class="b2b-key">Human escalation</span><span class="b2b-val">>20 min breach + high LTV customer only</span></div>
+          <div class="b2b-row"><span class="b2b-key">Point estimate threshold</span><span class="b2b-val">85% confidence — lower bar, customer trust is established</span></div>
+          <div class="b2b-row"><span class="b2b-key">OOS comms trigger</span><span class="b2b-val">70% OOS confidence — moderate, not hypersensitive</span></div>
+          <div class="b2b-row"><span class="b2b-key">Sub at cart</span><span class="b2b-val">On by default — wide substitution net</span></div>
+          <div class="b2b-row"><span class="b2b-key">Override authority</span><span class="b2b-val">Zone manager — decision at the store level</span></div>
+          <div class="b2b-row"><span class="b2b-key">Trust ladder</span><span class="b2b-val">Week 5 → auto-execute with notification</span></div>
+          <div class="b2b-row"><span class="b2b-key">Human escalation</span><span class="b2b-val">>15 min breach + high LTV customer only</span></div>
         </div>
       </div>
 
-      <!-- Client B -->
+      <!-- Client B: Walmart-type -->
       <div class="b2b-card">
         <div class="b2b-header b2b-header-purple">
-          <span style="font-size:28px;">🏪</span>
+          <div style="width:36px;height:36px;border-radius:8px;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">WM</div>
           <div>
-            <div class="b2b-client-name">Premium Retail</div>
-            <div class="b2b-client-sub">Quality-first · 80K orders/day · Urban density</div>
+            <div class="b2b-client-name">Legacy enterprise retailer (Walmart-type)</div>
+            <div class="b2b-client-sub">Ops-conservative · Hierarchical structure · Low surprise tolerance</div>
           </div>
         </div>
         <div class="b2b-body">
-          <div class="b2b-row"><span class="b2b-key">Promise display</span><span class="b2b-val">Range at confidence 70–90% — honesty over confidence</span></div>
-          <div class="b2b-row"><span class="b2b-key">Silent delay</span><span class="b2b-val">Max 3 min — customers expect precision</span></div>
-          <div class="b2b-row"><span class="b2b-key">Sub trigger</span><span class="b2b-val">OOS confidence ≥90% — conservative, brand-first</span></div>
-          <div class="b2b-row"><span class="b2b-key">Communication</span><span class="b2b-val">Proactive at 3+ min — push with revised ETA</span></div>
-          <div class="b2b-row"><span class="b2b-key">SLA band</span><span class="b2b-val">10–20 min — tight window, high accuracy required</span></div>
+          <div class="b2b-row"><span class="b2b-key">Point estimate threshold</span><span class="b2b-val">92% confidence — higher bar, buyers penalise surprises</span></div>
+          <div class="b2b-row"><span class="b2b-key">OOS comms trigger</span><span class="b2b-val">60% OOS confidence — earlier signal, B2B buyers are operationally sensitive</span></div>
+          <div class="b2b-row"><span class="b2b-key">Sub at cart</span><span class="b2b-val">Ops lead approval required per category — supplier contracts apply</span></div>
+          <div class="b2b-row"><span class="b2b-key">Override authority</span><span class="b2b-val">Regional ops lead — hierarchical structure requires higher authority</span></div>
+          <div class="b2b-row"><span class="b2b-key">Trust ladder</span><span class="b2b-val">Month 3 → auto-execute — legacy teams need more evidence</span></div>
           <div class="b2b-row"><span class="b2b-key">Human escalation</span><span class="b2b-val">>8 min breach OR any substitution rejection</span></div>
         </div>
       </div>
     </div>
 
     <div class="b2b-insight" style="margin-top:16px;">
-      <strong>The insight behind B2B config:</strong> A high-volume platform's customer expects speed and will tolerate a substitution. A premium retailer's customer expects precision and reads a substitution offer as a quality signal about the store. Same architecture. Different trust contracts. The config layer is what makes Shipsy a platform, not a point solution.
+      <strong>The shared vs. configurable line:</strong> The demand intelligence model is shared — a demand spike Flipkart absorbs in Delhi at 8pm trains the Walmart model in Bangalore 90 minutes before it hits there. That network effect only exists if the base model is shared. Clients who want a private model get a worse model. Customer tolerance data, brand substitution rules, and trust ladder pace are fully client-owned and never cross boundaries. Configuration is owned by the client's product lead. Changes to shared model weights require Shipsy review — a client misconfiguration degrades the network for everyone. <em>You own your parameters. We own the model.</em>
     </div>
   </div>
 </div>
